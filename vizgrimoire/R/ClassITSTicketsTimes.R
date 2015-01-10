@@ -42,6 +42,21 @@ query.closed = c (
          GROUP BY issue_id) ch
       WHERE issues.id = ch.issue_id
       ORDER BY submitted_on",
+  "allura" = "SELECT issue_id as id,
+        issue,
+     	submitted_on AS open,
+        closed,
+	        closedlast
+              FROM issues, (
+        SELECT
+        issue_id,
+        MIN(changed_on) AS closed,
+        MAX(changed_on) AS closedlast
+        FROM changes
+        WHERE (new_value='CLOSED')
+        GROUP BY issue_id) ch
+              WHERE issues.id = ch.issue_id
+              ORDER BY submitted_on",
   "jira" = "SELECT issue_id as id,
         issue,
      	submitted_on AS open,
@@ -91,7 +106,22 @@ FROM
     GROUP BY issue_id) ch
 WHERE
     issues.id = ch.issue_id AND submitted_on < closed
-ORDER BY submitted_on"
+ORDER BY submitted_on",
+  "github" = "SELECT issue_id as id,
+        issue,
+     	submitted_on AS open,
+        closed,
+	closedlast
+      FROM issues, (
+         SELECT
+           issue_id,
+           MIN(changed_on) AS closed,
+           MAX(changed_on) AS closedlast
+         FROM changes
+         WHERE field='closed'
+         GROUP BY issue_id) ch
+      WHERE issues.id = ch.issue_id
+      ORDER BY submitted_on"    
   )
 
 setClass(Class="ITSTicketsTimes",
